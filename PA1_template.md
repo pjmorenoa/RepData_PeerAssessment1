@@ -3,12 +3,13 @@
 
 ## Loading and preprocessing the data
 
+First, loading some libraries here.
 
 ```r
 library(dplyr)
 library(tidyr)
 ```
-Reading the data
+Reading the data, creating a data frame table
 
 ```r
 act <- read.csv("activity.csv")
@@ -33,6 +34,8 @@ act
 ## 10    NA 2012-10-01       45
 ## ..   ...        ...      ...
 ```
+
+Preprocessing: group data by Date and then summarize, to show the total of steps per day.
 
 ```r
 act_date <- act %>%
@@ -90,7 +93,7 @@ act2  # tbl without NA values
 
 ## What is mean total number of steps taken per day?
 
-
+Do the maths and then the histogram as indicated.
 
 ```r
 mean(act2$steps_day)
@@ -112,44 +115,23 @@ median(act2$steps_day)
 hist(act2$steps_day, xlab="Steps taken per day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
 
 
 ## What is the average daily activity pattern?
 
+Now grouping the data by intervals, and then summarizing.
 
 ```r
 act_int <- act %>%
   group_by(interval) %>%
   summarize(mean_steps=mean(steps, na.rm=TRUE))
   
-act_int
-```
-
-```
-## Source: local data frame [288 x 2]
-## 
-##    interval mean_steps
-##       (int)      (dbl)
-## 1         0  1.7169811
-## 2         5  0.3396226
-## 3        10  0.1320755
-## 4        15  0.1509434
-## 5        20  0.0754717
-## 6        25  2.0943396
-## 7        30  0.5283019
-## 8        35  0.8679245
-## 9        40  0.0000000
-## 10       45  1.4716981
-## ..      ...        ...
-```
-
-```r
 plot(act_int$interval,act_int$mean_steps,type="l", col="red" )
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
 
 ```r
 filter(act_int, mean_steps==max(mean_steps))
@@ -166,7 +148,7 @@ filter(act_int, mean_steps==max(mean_steps))
 
 ## Imputing missing values
 
-We are going to use the mean steps per interval, as we calculated in the last question.
+I'm going to use the mean steps per interval, as calculated in the last question.
 
 
 ```r
@@ -213,7 +195,7 @@ act3 <- act3 %>%
 hist(act3$steps_day, xlab="Steps taken per day",main="Imputing missing values")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
 
 
 ```r
@@ -231,15 +213,18 @@ median(act3$steps_day)
 ```
 ## [1] 10641
 ```
-
+There is a little difference between these calculations and the numbers that I've got before (without completing the dataset) but it seems to be minimal, almost the same.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Loading some libraries.
 
 ```r
 library(lubridate)
 library(lattice)
 ```
 
+Doing the graph.
 
 ```r
 act_days <- act %>%
@@ -276,4 +261,4 @@ act_days
 xyplot(mean_steps ~ interval | Weekend, act_days, type = "l", layout = c(1, 2), xlab = "Interval", ylab = "Number of steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
