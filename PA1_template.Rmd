@@ -8,18 +8,113 @@ output:
 
 ## Loading and preprocessing the data
 
+```{r libraries,results='hide',message=FALSE}
+library(dplyr)
+library(tidyr)
 
+```
+Reading the data
+```{r}
+act <- read.csv("activity.csv")
+act <- tbl_df(act)
+act
+
+act_date <- act %>%
+  group_by(date) %>%
+  summarize(steps_day=sum(steps))
+
+act_date
+```
+
+Preprocessing: Removing NA's
+
+```{r}
+act2 <- act_date %>%
+  filter(!is.na(steps_day)) ## Remove NA values
+ 
+act2  # tbl without NA values
+
+
+```
 
 ## What is mean total number of steps taken per day?
+
+
+```{r}
+mean(act2$steps_day)
+median(act2$steps_day)
+
+hist(act2$steps_day, xlab="Steps taken per day")
+```
 
 
 
 ## What is the average daily activity pattern?
 
+````{r}
+act_int <- act %>%
+  group_by(interval) %>%
+  summarize(mean_steps=mean(steps, na.rm=TRUE))
+  
+act_int
+
+plot(act_int$interval,act_int$mean_steps,type="l", col="red" )
+
+filter(act_int, mean_steps==max(mean_steps))
+```
 
 
 ## Imputing missing values
 
+We are going to use the mean steps per interval, as we calculated in the last question.
+
+```{r}
+act_na <- act %>%
+  filter(is.na(steps))
+act_nona <- act %>%
+  filter(!is.na(steps))
+
+act_na
+
+act_int2 <- act_int %>%
+  mutate(steps=as.integer(floor(mean_steps))) %>%
+  select(interval,steps)
+
+a <- complete(act_na, fill=act_int2, by=steps)
+
+act3 <- rbind(act_nona, a)
+act3 <- arrange(act3,date,interval)
+
+act3 <- act3 %>%
+  group_by(date) %>%
+  summarize(steps_day=sum(steps))
+
+hist(act3$steps_day, xlab="Steps taken per day",main="Imputing missing values")
+```
+
+```{r}
+mean(act3$steps_day)
+median(act3$steps_day)
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r libraries2,results='hide',message=FALSE}
+library(lubridate)
+library(lattice)
+
+```
+
+```{r}
+act_days <- act %>%
+  filter(!is.na(steps)) %>%
+  mutate(Day_of_the_week=as.integer(wday(ymd(date)))) %>%
+  mutate(Weekend = ifelse(Day_of_the_week %in% c(6,7), "Weekend", "Weekday"))%>%
+  group_by(interval,Weekend) %>%
+  mutate(mean_steps=mean(steps, na.rm=TRUE)) %>%
+  select(steps,date,Weekend,interval,mean_steps)
+
+act_days
+
+xyplot(mean_steps ~ interval | Weekend, act_days, type = "l", layout = c(1, 2), xlab = "Interval", ylab = "Number of steps")
+```
