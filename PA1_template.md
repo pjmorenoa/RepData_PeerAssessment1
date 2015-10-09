@@ -1,6 +1,6 @@
 # Reproducible Research: Peer Assessment 1
 Patricio Moreno  
-27 de septiembre de 2015  
+October 8, 2015  
 
 
 ### Loading and preprocessing the data
@@ -291,9 +291,12 @@ act_days
 
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
+
 ```r
 xyplot(mean_steps ~ interval | Weekend, act_days, type = "l", 
        layout = c(1, 2), xlab = "Interval", ylab = "Number of steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-16-1.png) 
+
+*The pattern looks similar between weekday and weekend, but it looks like in weekends the peaks are higher (average number of steps higher in weekends than in weekdays).*
