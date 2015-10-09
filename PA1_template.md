@@ -1,7 +1,9 @@
 # Reproducible Research: Peer Assessment 1
+Patricio Moreno  
+27 de septiembre de 2015  
 
 
-## Loading and preprocessing the data
+### Loading and preprocessing the data
 
 *First, loading some libraries here.*
 
@@ -56,7 +58,7 @@ act2 <- act_date %>%
   filter(!is.na(steps_day)) ## Remove NA values
 ```
 
-## What is mean total number of steps taken per day?
+### What is mean total number of steps taken per day?
 
 For this part of the assignment, you can ignore the missing values in the dataset.
 
@@ -88,7 +90,8 @@ act_date
 
 
 ```r
-hist(act2$steps_day, xlab="Steps taken per day")
+hist(act2$steps_day, main="Histogram of total number of steps taken per day", 
+     xlab="Steps taken per day", ylab="Frequency", breaks=10, col="green")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
@@ -113,7 +116,7 @@ median(act2$steps_day)
 ```
 
 
-## What is the average daily activity pattern?
+### What is the average daily activity pattern?
 
 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
@@ -128,7 +131,9 @@ act_int <- act %>%
 *Making the plot.*
 
 ```r
-plot(act_int$interval,act_int$mean_steps,type="l", col="red" )
+plot(act_int$interval,act_int$mean_steps,type="l", col="red" , 
+     main = "Steps taken by interval", xlab = "Interval", 
+     ylab = "Number of steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
@@ -149,7 +154,7 @@ filter(act_int, mean_steps==max(mean_steps))
 ```
 
 
-## Imputing missing values
+### Imputing missing values
 
 
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
@@ -167,13 +172,14 @@ nrow(act_na)
 
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
+*I decided to fill the missing values using the mean for each 5-minute interval, rounding the value (to deal with decimal digits) with the function round.*
 
 ```r
 act_nona <- act %>%
   filter(!is.na(steps))
 
 act_int2 <- act_int %>%
-  mutate(steps=as.integer(floor(mean_steps))) %>%
+  mutate(steps=as.integer(round(mean_steps))) %>%
   select(interval,steps)
 
 a <- complete(act_na, fill=act_int2, by=steps)
@@ -198,14 +204,14 @@ act3
 ## 
 ##          date steps_day
 ##        (fctr)     (int)
-## 1  2012-10-01     10641
+## 1  2012-10-01     10762
 ## 2  2012-10-02       126
 ## 3  2012-10-03     11352
 ## 4  2012-10-04     12116
 ## 5  2012-10-05     13294
 ## 6  2012-10-06     15420
 ## 7  2012-10-07     11015
-## 8  2012-10-08     10641
+## 8  2012-10-08     10762
 ## 9  2012-10-09     12811
 ## 10 2012-10-10      9900
 ## ..        ...       ...
@@ -215,7 +221,8 @@ act3
 
 
 ```r
-hist(act3$steps_day, xlab="Steps taken per day",main="Imputing missing values")
+hist(act3$steps_day, xlab="Steps taken per day",
+     main="Imputing missing values", breaks=10, col="green")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-13-1.png) 
@@ -226,7 +233,7 @@ mean(act3$steps_day)
 ```
 
 ```
-## [1] 10749.77
+## [1] 10765.64
 ```
 
 ```r
@@ -234,11 +241,11 @@ median(act3$steps_day)
 ```
 
 ```
-## [1] 10641
+## [1] 10762
 ```
 *There is a little difference between these calculations and the numbers that I've got before (without completing the dataset), but it seems to be minimal, almost the same.*
 
-## Are there differences in activity patterns between weekdays and weekends?
+### Are there differences in activity patterns between weekdays and weekends?
 
 *Loading some libraries.*
 
@@ -254,7 +261,8 @@ library(lattice)
 act_days <- act %>%
   filter(!is.na(steps)) %>%
   mutate(Day_of_the_week=as.integer(wday(ymd(date)))) %>%
-  mutate(Weekend = ifelse(Day_of_the_week %in% c(6,7), "Weekend", "Weekday"))%>%
+  mutate(Weekend = ifelse(Day_of_the_week %in% c(6,7), 
+                          "Weekend", "Weekday"))%>%
   group_by(interval,Weekend) %>%
   mutate(mean_steps=mean(steps, na.rm=TRUE)) %>%
   select(steps,date,Weekend,interval,mean_steps)
@@ -284,7 +292,8 @@ act_days
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
 ```r
-xyplot(mean_steps ~ interval | Weekend, act_days, type = "l", layout = c(1, 2), xlab = "Interval", ylab = "Number of steps")
+xyplot(mean_steps ~ interval | Weekend, act_days, type = "l", 
+       layout = c(1, 2), xlab = "Interval", ylab = "Number of steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-16-1.png) 
